@@ -68,6 +68,9 @@ def getInputDataAndDisplayStats(filename,processDate,printSummary=False):
 	print("\nFinal dataset:\n\nDate:",processDate,"\n")
 	print(df['publication'].value_counts())
 
+
+	#inserting an output file into code to compare with my results
+	df.to_csv(r'C:\Users\goldm\Capstone\tracking files\JB_production_getInputDataAndDisplayStats.csv')
 	return df
 
 ##########################################################################################
@@ -191,6 +194,10 @@ def productRelatednessScores(tfidfVectors,nonZeroCoords,refRow):
 
 	for toRow in range(tfidfVectors.shape[0]):
 		scores[toRow]=sum([(float(tfidfVectors[toRow,w])*float(tfidfVectors[refRow,w])) for w in nonZeroCoords[refRow] if w in nonZeroCoords[toRow]])
+
+	scores_df = pd.DataFrame(scores)
+	scores_df.to_csv(r'C:\Users\goldm\Capstone\tracking files\JB_Capstone_scores_df.csv')
+
 	return scores
 
 ##########################################################################################
@@ -281,6 +288,12 @@ def preprocessAndVectorize(articleDataFrame,args,pos_nlp_mapping,nlp,nl,wordnet_
 							   **optArgsForVectorizer)
 	tfidfVectors=vectorizer.fit_transform(articleDataFrame['input to vectorizer'])
 	terms=vectorizer.get_feature_names()
+
+
+	#inserting line of output  here to compare my outputs with his outputs
+	tfidfVectors_dense = tfidfVectors.todense()
+	df_tfidfVectors = pd.DataFrame(tfidfVectors_dense)
+	df_tfidfVectors.to_csv(r'C:\Users\goldm\Capstone\tracking files\JB_production_code_tfidfVectors.csv')
 	return tfidfVectors, terms
 
 ##########################################################################################
@@ -710,10 +723,10 @@ if __name__ == '__main__':
 	parser.add_argument('--article-id-list', help='list of article IDs to produce topic matches for',nargs='+',type=int)
 	parser.add_argument('--article-stats', help='print number of available articles by date and publication', type=str2bool, default=False) 
 	parser.add_argument('--story-map-validation', help='file containing links between articles for validation')
-	parser.add_argument('--process-date', help='process articles from this date', default='2016-08-22')
+	parser.add_argument('--process-date', help='process articles from this date', default='2016-09-01')
 	parser.add_argument('--stop-words-file', help='file containing stop words for omission', default='./data/stopWords.txt')
 
-	parser.add_argument('--nlp-library', help='library used for text analysis', default='spaCy')
+	parser.add_argument('--nlp-library', help='library used for text analysis', default='nltk')
 
 	parser.add_argument('--pos-list', help='parts-of-speech to restrict to i.e. VERB PROPER COMMON',nargs='+',type=str,default=['ALL'])
 
@@ -727,7 +740,7 @@ if __name__ == '__main__':
 	parser.add_argument('--tfidf-mindf', help='min_df for tf_idf vectorizer INTEGER i.e. NUMBER OF DOCUMENTS',type=int)
 	parser.add_argument('--tfidf-binary', help='binary df for tf_idf vectorizer', type=str2bool, default=False)
 	parser.add_argument('--tfidf-norm', help='optionally apply normalization in tf_idf vectorizer - l1, l2', default=None)
-	parser.add_argument('--display-graph', help='generate Bokeh graph of SVD of results', type=str2bool, default=False)
+	parser.add_argument('--display-graph', help='generate Bokeh graph of SVD of results', type=str2bool, default=True)
 	parser.add_argument('--grid-parameter-file', help='parameter ranges for grid search')
 
 	args = vars(parser.parse_args())
